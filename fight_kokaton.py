@@ -158,8 +158,21 @@ class Score:
         rect.center = self.pos
         screen.blit(self.img, rect)
 
+class Explosion:
+    """
+    爆発エフェクト
+    """
+    def __init__(self, bomb: Bomb):
+        img = pg.image.load("fig/explosion.gif")
+        self.imgs = [img, pg.transform.flip(img, True, True)]
+        self.rct = self.imgs[0].get_rect(center=bomb.rct.center)
+        self.life = 50
     
-
+    def update(self, screen: pg.Surface):
+        self.life -= 1
+        if self.life > 0:
+            img = self.imgs[self.life // 5 % 2]
+            screen.blit(img,self.rct)
 
 
 def main():
@@ -171,6 +184,7 @@ def main():
     bird = Bird((300, 200))
     #bomb = Bomb((255, 0, 0), 10)
     bombs = [] #爆弾用の空リスト
+    explosion_list = [] #Explosionの空リスト
     for _ in range(NUM_OF_BOMBS):
         bombs.append(Bomb((255,0,0),10))
     beam = None  # ゲーム初期化時にはビームは存在しない
@@ -202,6 +216,7 @@ def main():
                 for j, beam in enumerate(beam_list):
                     if beam is not None:
                         if beam.rct.colliderect(bomb.rct): #ビームと爆弾が衝突していたら
+                            explosion_list.append(Explosion(bomb))
                             beam_list[j] = None
                             bombs[i] = None
                             bird.change_img(6,screen)
@@ -221,6 +236,14 @@ def main():
             beam.update(screen)   
         for bomb in bombs:
             bomb.update(screen)
+        
+        ex_alive = []
+        for ex in explosion_list:
+            ex.update(screen)
+            if ex.life > 0:
+                ex_alive.append(ex)
+        explosion_list = ex_alive
+
         pg.display.update()
         tmr += 1
         clock.tick(50)
