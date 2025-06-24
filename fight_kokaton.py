@@ -169,6 +169,9 @@ class Explosion:
         self.life = 50
     
     def update(self, screen: pg.Surface):
+        """
+        爆発エフェクトを画面に出力する
+        """
         self.life -= 1
         if self.life > 0:
             img = self.imgs[self.life // 5 % 2]
